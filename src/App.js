@@ -1,25 +1,69 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
+import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
+
+import { getAllData, getBlogs, getComments, getAuthors } from "./API/data";
+
+import "./App.css";
+
+const Json = (data, index) => (
+    <li key={index}>
+        <pre>{JSON.stringify(data, null, 4)}</pre>
+    </li>
+);
+
+const extractAuthorData = (data) => data 
+    ? ({
+        name: data?.fields?.name,
+        description: data?.fields?.description,
+        bio: documentToReactComponents(data?.fields?.bio),
+        joined: (new Date(data?.sys?.createdAt)).toLocaleDateString(),
+    })
+    : {
+        loading: true
+    }
+
+const Author = (data) => {
+    const { name, description, bio, joined } = extractAuthorData(data);
+    console.log(data, name, description, bio, joined)
+    return (
+        <div style={{
+            border: '1px solid black',
+            padding: '1rem',
+            margin: '1rem',
+        }}>
+            <h1>{name}</h1>
+            <h3>{description}</h3>
+            <div style={{border: '1px solid grey'}}>
+                <h3>Bio</h3>
+                {bio}
+            </div>
+            <p>Blogging since {joined}</p>
+        </div>
+    );
+};
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    const [blogs, setBlogs] = useState([]);
+    const [authors, setAuthors] = useState([]);
+    const [comments, setComments] = useState([]);
+
+    useEffect(() => {
+        (async () => {
+            getAllData(); // just to log
+            setAuthors(await getAuthors());
+            setBlogs(await getBlogs());
+            setComments(await getComments());
+        })();
+    }, []);
+
+    return (
+        <div className="App">
+            <Author {...authors[0]} />
+            Authors: <ol>{authors.map(Author)}</ol>
+            Blogs: <ol>{blogs.map(Json)}</ol>
+            Comments: <ol>{comments.map(Json)}</ol>
+        </div>
+    );
 }
 
 export default App;

@@ -1,9 +1,15 @@
 import { useEffect, useState } from "react";
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 
-import { getAllData, getBlogs, getComments, getAuthors } from "./API/data";
+// import { getAllData, getBlogs, getComments, getAuthors, getCommentsByArticle } from "./API/data";
+import * as API from './API/data';
+import CLIENT from './API/data';
 
 import "./App.css";
+
+CLIENT.getEntries().then((response) => console.log('Client:', response));
+
+const { getBlogs, getComments, getAuthors } = API
 
 const Json = (data, index) => (
     <li key={index}>
@@ -24,7 +30,7 @@ const extractAuthorData = (data) => data
 
 const Author = (data) => {
     const { name, description, bio, joined } = extractAuthorData(data);
-    console.log(data, name, description, bio, joined)
+    // console.log(data, name, description, bio, joined)
     return (
         <div style={{
             border: '1px solid black',
@@ -49,7 +55,8 @@ function App() {
 
     useEffect(() => {
         (async () => {
-            getAllData(); // just to log
+            API.getAllData(); // just to log
+            API.getCommentsByArticle('4Q01PyViSZIYwtTWlearkP');
             setAuthors(await getAuthors());
             setBlogs(await getBlogs());
             setComments(await getComments());

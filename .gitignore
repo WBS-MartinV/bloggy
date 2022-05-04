@@ -23,3 +23,4 @@ yarn-debug.log*
 yarn-error.log*
 src/credentials.json
 src/API/credentials.json
+package-lock.json
